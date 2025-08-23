@@ -38,15 +38,21 @@ jobs:
 
       - name: Install Android SDK cmdline-tools
         run: |
+          # Clean GitHub runner preinstalled SDK/NDK (causes conflicts)
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf $ANDROID_HOME || true
+          
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
-          unzip tools.zip
+          unzip -q tools.zip
           mv cmdline-tools latest
+          
           export ANDROID_HOME=$HOME/android-sdk
           export ANDROID_SDK_ROOT=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
           export PATH=$ANDROID_HOME/platform-tools:$PATH
+          
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "ndk;25.1.8937393"
 
@@ -82,34 +88,40 @@ jobs:
           export ANDROIDNDK=$ANDROID_HOME/ndk/25.1.8937393
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH
           
-          # Force ignore GitHub runner's preinstalled SDK/NDK
-          unset ANDROID_NDK_HOME
-          unset ANDROID_NDK_ROOT
-          unset ANDROID_NDK_LATEST_HOME
+          # Clear conflicting vars
+          unset ANDROID_NDK_HOME ANDROID_NDK_ROOT ANDROID_NDK_LATEST_HOME
           
-          # Accept licenses again just in case
+          # Debug print environment
+          echo "==== ANDROID ENVIRONMENT ===="
+          env | grep ANDROID || true
+          echo "============================="
+          
+          # Accept licenses
           yes | sdkmanager --licenses
           
-          # Run build
-          buildozer android debug
+          # Run build (verbose)
+          buildozer android debug log_level=2
 
       - name: List build output
         run: |
-          echo "APK build output:"
-          ls -la bin/ || echo "No bin directory found"
+          echo "==== Searching for APKs ===="
           find . -name "*.apk" -type f || echo "No APK files found"
+          echo "============================"
 
-      - name: Upload APK artifact
+      - name: Upload APK artifact (bin/)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: bin/*.apk
+          if-no-files-found: ignore
           retention-days: 30
 
-      - name: Upload alternative debug APK
-        if: failure()
+      - name: Upload APK artifact (build outputs)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk-alternative
+          name: android-apk-alt
           path: .buildozer/android/platform/build-**/outputs/apk/debug/*.apk
+          if-no-files-found: ignore
           retention-days: 30
