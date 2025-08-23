@@ -73,7 +73,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         pip install buildozer==1.5.0 cython==0.29.33
-        pip install flask werkzeug requests kivy[base]==2.2.0
+        pip install kivy[base]==2.2.0 flask werkzeug requests
         pip install yt-dlp
 
     - name: Cache Buildozer global directory
@@ -92,7 +92,7 @@ jobs:
         restore-keys: |
           buildozer-
 
-    - name: Set environment variables and build APK
+    - name: Build APK with Buildozer
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
         export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
@@ -102,20 +102,19 @@ jobs:
         export ANDROIDNDK="25b"
         export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH"
         
-        # Accept Android licenses ahead of time
+        # Accept Android licenses
         mkdir -p "$ANDROID_HOME/licenses"
         echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license"
         echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
         echo -e "\nd975f751698a77b662f1254ddbeed3901e976f5a" > "$ANDROID_HOME/licenses/intel-android-extra-license"
         
-        # Build the APK
+        # Build APK
         buildozer android debug
 
     - name: List build output
       run: |
-        echo "Contents of bin directory:"
+        echo "APK build output:"
         ls -la bin/ || echo "No bin directory found"
-        echo "Looking for APK files:"
         find . -name "*.apk" -type f || echo "No APK files found"
 
     - name: Upload APK artifact
@@ -125,7 +124,7 @@ jobs:
         path: bin/*.apk
         retention-days: 30
 
-    - name: Upload debug APK (alternative path)
+    - name: Upload alternative debug APK
       if: failure()
       uses: actions/upload-artifact@v4
       with:
