@@ -43,10 +43,12 @@ jobs:
         wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
         unzip tools.zip
         mv cmdline-tools latest
+
         export ANDROID_HOME=$HOME/android-sdk
         export ANDROID_SDK_ROOT=$HOME/android-sdk
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
         export PATH=$ANDROID_HOME/platform-tools:$PATH
+
         yes | sdkmanager --licenses
         sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "ndk;25.1.8937393"
 
@@ -81,7 +83,15 @@ jobs:
         export ANDROIDMINAPI=21
         export ANDROIDNDK=$ANDROID_HOME/ndk/25.1.8937393
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH
-        
+
+        # Force ignore GitHub runner's preinstalled SDK/NDK
+        unset ANDROID_NDK_HOME
+        unset ANDROID_NDK_ROOT
+        unset ANDROID_NDK_LATEST_HOME
+
+        # Accept licenses again just in case
+        yes | sdkmanager --licenses
+
         # Run build
         buildozer android debug
 
