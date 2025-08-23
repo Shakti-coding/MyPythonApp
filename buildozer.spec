@@ -6,78 +6,66 @@ title = MyApp
 # (str) Package name
 package.name = myapp
 
-# (str) Package domain (needed for android/ios packaging)
+# (str) Package domain (unique identifier, e.g. org.example.myapp)
 package.domain = org.myapp
 
-# (str) Source code where the main.py live
+# (str) Source code directory (where main.py is located)
 source.dir = .
 
-# (list) Source files to include (let empty to include all the files)
+# (list) File extensions to include in the package
 source.include_exts = py,txt,md
 
-# (str) Application versioning (method 1)
-version = 1.0
+# (str) Application version
+version = 0.1
 
-# (list) Application requirements
-# comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,flask,werkzeug,jinja2,markupsafe,itsdangerous,click,requests,certifi,charset-normalizer,idna,urllib3
+# (list) Application requirements (comma-separated)
+# include kivy + flask stack + networking
+requirements = python3,kivy,flask,werkzeug,jinja2,markupsafe,itsdangerous,click,requests,certifi,charset-normalizer,idna,urllib3,pyjnius
 
-# (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
+# (str) Presplash image
+# presplash.filename = %(source.dir)s/data/presplash.png
 
-# (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+# (str) Icon image
+# icon.filename = %(source.dir)s/data/icon.png
 
 # (str) Supported orientation (landscape, sensorLandscape, portrait or all)
 orientation = portrait
 
-# (bool) Indicate if the application should be fullscreen or not
+# (bool) Fullscreen mode
 fullscreen = 0
 
-# (list) Permissions
+# (list) Android permissions
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 
-# (int) Target Android API, should be as high as possible.
-android.api = 31
+# (int) Target Android API (must match installed SDK platform)
+android.api = 33
 
-# (int) Minimum API your APK will support.
+# (int) Minimum API your APK will support
 android.minapi = 21
 
-# (str) Android NDK version to use
+# (str) Android NDK version (tested with 25b)
 android.ndk = 25b
 
-# (bool) Use --private data storage (True) or --dir public storage (False)
+# (bool) Use private app storage (default=True)
 android.private_storage = True
 
-# (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path =
+# (str) Android archs to build for
+android.archs = arm64-v8a,armeabi-v7a
 
-# (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path =
-
-# (bool) If True, then skip trying to update the Android sdk
+# (bool) Skip Android SDK updates
 android.skip_update = False
 
-# (bool) If True, then automatically accept SDK license
+# (bool) Accept Android SDK licenses automatically
 android.accept_sdk_license = True
 
-# (str) Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
-android.archs = arm64-v8a
-
-# (bool) enables Android auto backup feature (Android API >=23)
-android.allow_backup = True
-
-# (str) Bootstrap to use for android builds
-android.bootstrap = sdl2
-
-# Python for android (p4a) specific
+# (str) Bootstrap to use (sdl2 is the default)
 p4a.bootstrap = sdl2
-p4a.branch = master
+
 
 [buildozer]
 
-# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
+# (int) Log level (0 = error only, 1 = info, 2 = debug)
 log_level = 2
 
-# (int) Display warning if buildozer is run as root (0 = False, 1 = True)
+# (int) Warn if running as root (0 = False, 1 = True)
 warn_on_root = 1
