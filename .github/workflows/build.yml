@@ -26,12 +26,9 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-
     - name: Install system dependencies
       run: |
-        sudo apt-get update
+        sudo apt-get update -q
         sudo apt-get install -y \
           build-essential \
           git \
@@ -46,7 +43,6 @@ jobs:
           libffi-dev \
           libncurses5-dev \
           libncursesw5-dev \
-          libtinfo5 \
           cmake \
           libfreetype6-dev \
           libgl1-mesa-dev \
@@ -57,7 +53,6 @@ jobs:
           libwayland-dev \
           libxrandr-dev \
           libxss-dev \
-          libgconf-2-4 \
           libxcursor-dev \
           libxcomposite-dev \
           libasound2-dev \
@@ -69,22 +64,17 @@ jobs:
           libtool \
           pkg-config \
           zlib1g-dev \
-          libncurses5-dev \
-          libncursesw5-dev \
-          libtinfo5 \
-          cmake \
-          libffi-dev \
-          libssl-dev
+          openjdk-17-jdk \
+          ccache \
+          lld \
+          llvm
 
     - name: Install Python dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install buildozer cython
-        pip install flask werkzeug requests
-
-    - name: Install Kivy garden webview (fallback)
-      run: |
-        pip install kivy_garden.webview || echo "WebView garden package not available, using fallback"
+        python -m pip install --upgrade pip setuptools wheel
+        pip install buildozer==1.5.0 cython==0.29.33
+        pip install flask werkzeug requests kivy[base]==2.2.0
+        pip install yt-dlp
 
     - name: Cache Buildozer global directory
       uses: actions/cache@v4
@@ -102,27 +92,24 @@ jobs:
         restore-keys: |
           buildozer-
 
-    - name: Set environment variables
+    - name: Set environment variables and build APK
       run: |
-        echo "JAVA_HOME=/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.10-7/x64" >> $GITHUB_ENV
-        echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-        echo "ANDROIDAPI=31" >> $GITHUB_ENV
-        echo "ANDROIDMINAPI=21" >> $GITHUB_ENV
-        echo "ANDROIDNDK=25b" >> $GITHUB_ENV
-
-    - name: Accept Android SDK licenses
-      run: |
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-    - name: Build APK with Buildozer
-      run: |
-        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        export ANDROID_SDK_ROOT="$ANDROID_HOME"  
+        export ANDROIDAPI="31"
+        export ANDROIDMINAPI="21"
+        export ANDROIDNDK="25b"
+        export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH"
+        
+        # Accept Android licenses ahead of time
+        mkdir -p "$ANDROID_HOME/licenses"
+        echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license"
+        echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
+        echo -e "\nd975f751698a77b662f1254ddbeed3901e976f5a" > "$ANDROID_HOME/licenses/intel-android-extra-license"
+        
+        # Build the APK
         buildozer android debug
-      env:
-        JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.10-7/x64
-        ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
-        ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
     - name: List build output
       run: |
