@@ -38,13 +38,13 @@ fullscreen = 0
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 
 # (int) Target Android API (must match installed SDK platform)
-android.api = 33
+android.api = 34
 
 # (int) Minimum API your APK will support
-android.minapi = 21
+android.minapi = 23
 
 # (str) Android NDK version (tested with 25b)
-android.ndk = 25b
+android.ndk = 26b
 
 # (bool) Use private app storage (default=True)
 android.private_storage = True
@@ -52,7 +52,7 @@ android.private_storage = True
 # (str) Android archs to build for
 android.archs = arm64-v8a,armeabi-v7a
 
-# (bool) Skip Android SDK updates
+# (bool) Skip Android updates
 android.skip_update = False
 
 # (bool) Accept Android SDK licenses automatically
@@ -61,6 +61,9 @@ android.accept_sdk_license = True
 # (str) Bootstrap to use (sdl2 is the default)
 p4a.bootstrap = sdl2
 
+# (list) python-for-android requirements
+# comma separated e.g. openssl,sqlite3
+p4a.requirements = openssl,sqlite3,libffi
 
 [buildozer]
 
